@@ -90,6 +90,31 @@ python main.py --work_dir ./work_dir/base_US --model base --mode US
 
 Once the environment is set up, you can train or test the model on the available tasks. Follow the instructions in the individual task directories for specific commands.
 
+### Running the Script for Inference the best model
+
+#### Task-1 (SI)
+```bash
+python inference_submission.py \
+    --work_dir ./work_dir/base_SI \
+    --mode SI \
+    --model base \
+    --device 0 \
+    --output_dir ./submission/task-1
+```
+
+#### Task-2 (US)
+```bash
+python inference_submission.py \
+    --work_dir ./work_dir/base_US \
+    --mode US \
+    --model base \
+    --device 0 \
+    --output_dir ./submission/task-2
+```
+
+Replace `--model base` with `llm`, `slowfast`, `stgcn_conformer`, or `st_transformer` depending on the model used. Update `work_dir` to match the training directory containing `best_model.pt`.
+
+
 ## License
 
 This project is licensed under the MIT License.
