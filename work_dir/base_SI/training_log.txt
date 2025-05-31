@@ -1,0 +1,5 @@
+Train Loss: 79.7811 - Dev WER: inf - Best Dev WER: inf - Best epoch: 1 - Learning Rate: 0.00001000
+Train Loss: 75.6229 - Dev WER: 1006.8235 - Best Dev WER: 1006.8235 - Best epoch: 2 - Learning Rate: 0.00001000
+Train Loss: 74.7252 - Dev WER: 1087.1465 - Best Dev WER: 1006.8235 - Best epoch: 2 - Learning Rate: 0.00001000
+Train Loss: 73.4619 - Dev WER: 1180.5014 - Best Dev WER: 1006.8235 - Best epoch: 2 - Learning Rate: 0.00001000
+Train Loss: 71.6993 - Dev WER: 1082.3077 - Best Dev WER: 1006.8235 - Best epoch: 2 - Learning Rate: 0.00001000
