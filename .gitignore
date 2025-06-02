@@ -1,5 +1,6 @@
 data/*
 work_dir/*
+ctcdecode/*
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
