@@ -19,13 +19,18 @@ from torchvision import transforms
 from utils.datasetv2 import PoseDatasetV2
 
 from models.transformer import SlowFastCSLR, PoseCSLRTransformer
-from models.llm_based_model import LLMEnhancedPoseCSLR
-
+from models.llm_based_model import SlowFastLLMCSLR, LLMEnhancedPoseCSLR, AdvancedSlowFastLLMCSLR
+from models.stgcn_conformer import STGCNConformer, get_body_adjacency_matrix
+from models.spatio_temporal_transformer import SpatioTemporalTransformer, get_body_adjacency_matrix
 
 MODELS = {
     "base": PoseCSLRTransformer,
     "slowfast": SlowFastCSLR,
-    "llm": LLMEnhancedPoseCSLR
+    "llm_PoseCSLRT": LLMEnhancedPoseCSLR,
+    "llm_slowfast": SlowFastLLMCSLR,
+    "llm_advslowfast": AdvancedSlowFastLLMCSLR,
+    "stgcn_conformer": STGCNConformer,
+    "st_transformer": SpatioTemporalTransformer 
 }
 
 def set_rng_state(seed):
@@ -110,8 +115,8 @@ def main(args):
     make_workdir(args.work_dir)
     device = torch.device(f"cuda:{args.device}" if torch.cuda.is_available() else "cpu") 
         
-    train_csv = os.path.join(args.data_dir, f"isharah1000/annotations/{args.mode}/train.txt")
-    dev_csv = os.path.join(args.data_dir, f"isharah1000/annotations/{args.mode}/dev.txt")
+    # train_csv = os.path.join(args.data_dir, f"isharah1000/annotations/{args.mode}/train.txt")
+    # dev_csv = os.path.join(args.data_dir, f"isharah1000/annotations/{args.mode}/dev.txt")
     
     train_csv = f"./annotations_v2/{args.mode}/train.txt"
     dev_csv = f"./annotations_v2/{args.mode}/dev.txt"
@@ -121,19 +126,42 @@ def main(args):
     # dataset_train = PoseDatasetV2("isharah", train_csv , "train", train_processed , augmentations=True , transform=transforms.Compose([GaussianNoise()]))
     # dataset_dev = PoseDatasetV2("isharah", dev_csv , "dev", dev_processed, augmentations=False)
 
-    dataset_train = PoseDatasetV2("isharah", train_csv, "train", train_processed, augmentations=True, transform=transforms.Compose([GaussianNoise()]), max_frames=512)
-    dataset_dev = PoseDatasetV2("isharah", dev_csv, "dev", dev_processed, augmentations=False, max_frames=512)
+    dataset_train = PoseDatasetV2("isharah", train_csv, "train", train_processed, augmentations=True, transform=transforms.Compose([GaussianNoise()]), max_frames=512, mode=args.mode)
+    dataset_dev = PoseDatasetV2("isharah", dev_csv, "dev", dev_processed, augmentations=False, max_frames=512, mode=args.mode)
 
     traindataloader = DataLoader(dataset_train, batch_size=1, shuffle=True, num_workers=10)
     devdataloader = DataLoader(dataset_dev, batch_size=1, shuffle=False, num_workers=10)
     
     model = MODELS[args.model](input_dim=86*2, num_classes=len(vocab_map)).to(device)
 
+    # adj_matrix = get_body_adjacency_matrix()
+    # model = MODELS[args.model](
+    #     input_dim=2,  # x,y coordinates
+    #     num_classes=len(vocab_map),
+    #     adj_matrix=adj_matrix,
+    #     embed_dim=256,
+    #     num_heads=4,
+    #     num_layers=6
+    # ).to(device)
+
+    # # ...
+    # adj_matrix = get_body_adjacency_matrix()
+    # model = MODELS[args.model](
+    #     input_dim=2,  # x,y coordinates
+    #     num_classes=len(vocab_map),
+    #     adj_matrix=adj_matrix,
+    #     spatial_channels=64,
+    #     embed_dim=256,
+    #     num_layers=4,
+    #     num_heads=8
+    # ).to(device)
+    # # ...
+
     decoder_dec = Decode(vocab_map, len(vocab_list), 'beam')
-    optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    # optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3, verbose=True)
     loss_encoder = nn.CTCLoss(blank=0, zero_infinity=True, reduction='none')
-
 
     # model = MODELS[args.model](input_dim=84, num_classes=len(vocab_map)).to(device)
     # decoder_dec = Decode(vocab_map, len(vocab_list), 'beam')
@@ -198,11 +226,24 @@ if __name__ == '__main__':
     main(args)
 
 '''
+
 SI : Task-1 : python main.py --work_dir ./work_dir/base_SI --model base --mode SI --num_epochs 5
 
-                python main.py --work_dir ./work_dir/llm_SI --model llm --mode SI --num_epochs 300
+                python main.py --work_dir ./work_dir/llm_SI --model llm --mode SI --num_epochs 150 --device 0
 
-US : Task-2 : python main.py --work_dir ./work_dir/base_US --model base --mode US --num_epochs 5 --device 1
+                python main.py --work_dir ./work_dir/slowfast_SI --model slowfast --mode SI --num_epochs 100 --device 0
 
-                python main.py --work_dir ./work_dir/llm_US --model llm --mode US --num_epochs 300 --device 1
-'''
+                python main.py --work_dir ./work_dir/llm_advslowfast_SI --model llm_advslowfast --mode SI --num_epochs 100 --device 0
+
+
+
+US : Task-2 : python main.py --work_dir ./work_dir/base_US --model base --mode US --num_epochs 5
+
+                python main.py --work_dir ./work_dir/llm_US --model llm --mode US --num_epochs 150 --device 1
+
+                python main.py --work_dir ./work_dir/slowfast_US --model slowfast --mode US --num_epochs 100 --device 1
+
+                python main.py --work_dir ./work_dir/llm_advslowfast_US --model llm_advslowfast --mode US --num_epochs 100 --device 1
+
+
+''' 
