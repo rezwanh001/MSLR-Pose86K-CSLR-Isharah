@@ -114,6 +114,18 @@ python inference_submission.py \
 
 Replace `--model base` with `llm`, `slowfast`, `stgcn_conformer`, or `st_transformer` depending on the model used. Update `work_dir` to match the training directory containing `best_model.pt`.
 
+### Running `test_evaluate.py` the best model
+
+#### Task-1 (SI)
+```bash
+python test_evaluate.py --work_dir ./work_dir/llm_advslowfast_SI --model llm_advslowfast --mode SI --device 0
+```
+
+#### Task-2 (US)
+```bash
+python test_evaluate.py --work_dir ./work_dir/llm_advslowfast_US --model llm_advslowfast --mode US --device 1
+```
+
 
 ## License
 
