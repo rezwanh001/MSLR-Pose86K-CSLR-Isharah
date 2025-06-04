@@ -127,6 +127,45 @@ python test_evaluate.py --work_dir ./work_dir/llm_advslowfast_US --model llm_adv
 ```
 
 
+```
+MSLR-Pose86K-CSLR-Isharah/
+│
+├── main.py                      # Main training/validation script
+├── inference_submission.py      # Inference and submission script
+├── data_loader_test.py          # dataloader process for the test set only
+├── test_script.py               # testing dataset
+│
+├── models/
+│   ├── transformer.py           # Transformer-based CSLR model(s)
+│   └── gcn_transformer.py       # gcn-based transfromer (other model)
+│
+├── utils/
+|   ├── datasetv2.py             # processing the dataset 
+│   ├── decode.py                # Decoding utilities (CTC, beam search, etc.)
+│   ├── evaluation_script.py     # sample evaluation
+│   ├── metrics.py               # various MT evaluation metrics.
+│   └── text_ctc_utils.py        # CTC predictions into gloss sequences.
+|   
+│
+├── data/
+│   ├── public_si_dat/           # this database for task-1
+|   |   ├── train.csv            # train.csv with `arabic` text in gloss col (2 cols: id, gloss)
+|   |   ├── dev.csv              # dev.csv, similary
+|   |   ├── pose_data_isharah1000_hands_lips_body_May12.pkl   # pose data for training and validation          
+│   |   └── pose_data_isharah1000_SI_test.pkl                 # pose data for testing  
+│   └── public_us_dat/           # this database for task-2
+|       ├── train.csv            # train.csv with `arabic` text in gloss col (2 cols: id, gloss)
+|       ├── dev.csv              # dev.csv, similary
+|       ├── pose_data_isharah1000_hands_lips_body_May12.pkl   # pose data for training and validation 
+|       └── pose_data_isharah1000_SI_test.pkl                 # pose data for testing  
+├── work_dir/                    # Training logs, checkpoints, outputs
+│   └── ...                      # (Organized by experiment/run)
+│
+├── requirements.txt             # Python dependencies                 
+└── README.md                    # Project description and instructions 
+
+```
+
 ## License
 
 This project is licensed under the MIT License.
