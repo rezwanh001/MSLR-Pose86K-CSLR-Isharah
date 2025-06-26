@@ -1,5 +1,5 @@
 ### Project Structure
-
+``` bash
 MSLR-Pose86K-CSLR-Isharah/
 ├── configs/
 │   └── default.yaml
@@ -25,7 +25,7 @@ MSLR-Pose86K-CSLR-Isharah/
 ├── requirements.txt
 ├── environment.yml
 └── README.md
-
+```
 
 ### Environment setup:
 ```bash
