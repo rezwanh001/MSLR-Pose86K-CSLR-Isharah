@@ -39,6 +39,24 @@ python run.py --infer --mode US --model AdvancedSignLanguageRecognizer
 ---
 ---
 
+### Model Performance (US Mode)
+
+|        Model                   | Mode | Dev (WER) | Test (WER) |
+|--------------------------------|------|-----------|------------|
+| llm_advslowfast                | US   | 93.0663 | ...        |
+| gcn_transformer                | US   | 91.7951   | ...        |
+| mixllama                       | US   | 86.9029   | ...        |
+| LLM Backbone (DistilBERT)      | US   | 81.7026   | ...        |
+| slowfast                       | US   | 81.3174   | ...        |
+| LSTM                           | US   | 79.9307   | ...        |
+| SignLanguageConformer          | US   | 77.5039   | ...        |
+| SignLanguageRecognizer         | US   | 74.9614   | ...        |
+| SOTA_CSLR                      | US   | 64.4838   | ...        |
+| MambaSignLanguageRecognizer    | US   | 59.514    | ...        |
+| AdvancedSignLanguageRecognizer | US | **55.0847** | **47.7756** |
+
+
+
 ## Baseline Overview
 
 We use a simple **Transformer model** to produce the baseline for these tasks. The architecture of the baseline model is shown below:
