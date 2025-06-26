@@ -33,7 +33,7 @@ MSLR-Pose86K-CSLR-Isharah/
 conda env create -f environment.yml
 
 # Activate
-conda activate mslr
+conda activate mslr_arabic
 
 # Verify CUDA
 python -c "import torch; print(f'PyTorch: {torch.__version__}, CUDA: {torch.version.cuda}')"
