@@ -1,0 +1,38 @@
+name: mslr_arabic
+channels:
+  - pytorch
+  - nvidia
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pytorch=2.3.0
+  - torchvision=0.18.0
+  - torchaudio=2.3.0
+  - cudatoolkit
+  - cudnn=8.9
+  - pandas=2.2
+  - numpy=1.26
+  - scipy=1.13
+  - matplotlib=3.8
+  - scikit-learn=1.4
+  - tqdm=4.66
+  - pyyaml=6.0
+  - speechbrain
+  - mamba-ssm
+  - opencv=4.9
+  - jupyterlab=4.1
+  - ipykernel=6.29
+  - numba=0.59
+  - nvtx  # For NVIDIA profiling
+  - pip=24.0
+  - pip:
+      - mediapipe==0.10.9
+      - wandb==0.17.0
+      - tensorboard==2.16
+      - einops==0.8.0
+      - transformers==4.40
+      - pickle-mixin==1.0.2
+      - nvidia-cudnn-cu12==8.9.6.50  # Additional CUDA optimizations
+      - nvidia-cublas-cu12==12.1.3.1
+      - nvidia-cuda-nvrtc-cu12==12.1.105
