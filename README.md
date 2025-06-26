@@ -53,9 +53,26 @@ python run.py --infer --mode US --model AdvancedSignLanguageRecognizer
 | SignLanguageRecognizer         | US   | 74.9614   | ...        |
 | SOTA_CSLR                      | US   | 64.4838   | ...        |
 | MambaSignLanguageRecognizer    | US   | 59.514    | ...        |
-| AdvancedSignLanguageRecognizer | US | **55.0847** | **47.7756** |
+| **AdvancedSignLanguageRecognizer** | **US** | **55.0847** | **47.7756** |
 
+---
 
+### Model Performance (SI Mode)
+
+| Model                          | Mode | Dev (WER) | Test (WER) |
+|-------------------------------|------|-----------|------------|
+| llm_advslowfast               | SI   | 43.8955   | 72.2365    |
+| MambaSignLanguageRecognizer   | SI   | 29.3149   | 37.2774    |
+| AdvancedSignLanguageRecognizer| SI   | 27.5362   | 33.9069    |
+| mixllama + slowfastllm        | SI   | 30.1274   | 46.9831    |
+| mixllama                      | SI   | 21.8270   | 51.2139    |
+| LSTM                          | SI   | 17.0180   | 26.0755    |
+| slowfastllm                   | SI   | 16.7106   | 42.5878    |
+| SignLanguageConformer         | SI   | 16.2495   | 26.6290    |
+| SignLanguageRecognizer        | SI   | 14.5367   | 22.6229    |
+| **SOTA_CSLR**                 | **SI** | **7.3123** | **13.0652** |
+
+---
 
 ## Baseline Overview
 
