@@ -1,3 +1,28 @@
+#### run the code for both training and inference 
+
+- mode = SI (train)
+```bash
+python run.py --train --mode SI --model SOTA_CSLR
+```
+
+- mode = SI (infer)
+```bash
+python run.py --infer --mode SI --model SOTA_CSLR
+```
+
+---
+
+- mode = US (train)
+```bash
+python run.py --train --mode US --model AdvancedSignLanguageRecognizer
+```
+
+- mode = US (infer)
+```bash
+python run.py --infer --mode US --model AdvancedSignLanguageRecognizer
+```
+
+
 ### Project Structure
 ``` bash
 MSLR-Pose86K-CSLR-Isharah/
