@@ -7,6 +7,38 @@ The tasks include:
 1. **Signer Independent** [View Competition](https://www.kaggle.com/competitions/continuous-sign-language-recognition-iccv-2025)
 2. **Unseen Sentences** [View Competition](https://www.kaggle.com/competitions/continuous-slr-task-2-iccv-2025)
 
+## Update_MSLR-2025 (follow this folder for updated code)
+---
+---
+- `cd Update_MSLR-2025/`
+
+#### run the code for both training and inference 
+
+- mode = SI (train)
+```bash
+python run.py --train --mode SI --model SOTA_CSLR
+```
+
+- mode = SI (infer)
+```bash
+python run.py --infer --mode SI --model SOTA_CSLR
+```
+
+---
+
+- mode = US (train)
+```bash
+python run.py --train --mode US --model AdvancedSignLanguageRecognizer
+```
+
+- mode = US (infer)
+```bash
+python run.py --infer --mode US --model AdvancedSignLanguageRecognizer
+```
+
+---
+---
+
 ## Baseline Overview
 
 We use a simple **Transformer model** to produce the baseline for these tasks. The architecture of the baseline model is shown below:
