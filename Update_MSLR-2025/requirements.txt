@@ -1,0 +1,7 @@
+torch
+numpy
+pandas
+tqdm
+pyyaml
+speechbrain
+mamba-ssm
