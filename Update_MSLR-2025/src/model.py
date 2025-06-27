@@ -130,7 +130,7 @@ class AdvancedSignLanguageRecognizer(nn.Module):
         )
         self.transformer_encoder = nn.TransformerEncoder(
             encoder_layer,
-            num_layers= 7 # cfg.NUM_LAYERS  # Use same number of layers as before
+            num_layers= cfg.NUM_LAYERS  # Use same number of layers as before
         )
 
         # Classifier
