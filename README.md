@@ -11,7 +11,8 @@ The tasks include:
 
 ### Proposed Architecture: Signer-Invariant Conformer
 
-[**View the Model Diagram (PDF)**](Assets/Challenge%2011.pdf)
+<!-- [**View the Model Diagram (PDF)**](Assets/Challenge%2011.pdf) -->
+![Diagram of the Signer-Invariant Conformer Architecture](Assets/signer_invariant_conformer.png)
 
 *__Figure 1: Signer-Invariant Conformer.__ Our proposed architecture for signer-independent CSLR begins by extracting pose keypoints from video frames. An initial temporal encoder, composed of convolutional layers, learns local features from this pose sequence. The core of the model consists of conformer blocks that capture global context with multi-head self-attention and extract local patterns using convolution. Positional encodings are exploited to provide the model with sequence order information. Finally, a linear classifier head analyzes the sequence representation to generate sign gloss predictions.*
 
