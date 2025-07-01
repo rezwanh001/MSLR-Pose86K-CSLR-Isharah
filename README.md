@@ -7,6 +7,14 @@ The tasks include:
 1. **Signer Independent** [View Competition](https://www.kaggle.com/competitions/continuous-sign-language-recognition-iccv-2025)
 2. **Unseen Sentences** [View Competition](https://www.kaggle.com/competitions/continuous-slr-task-2-iccv-2025)
 
+## Propossed models Architecture:
+
+### Proposed Architecture: Signer-Invariant Conformer
+
+[**View the Model Diagram (PDF)**](Assets/Challenge%2011.pdf)
+
+*__Figure 1: Signer-Invariant Conformer.__ Our proposed architecture for signer-independent CSLR begins by extracting pose keypoints from video frames. An initial temporal encoder, composed of convolutional layers, learns local features from this pose sequence. The core of the model consists of conformer blocks that capture global context with multi-head self-attention and extract local patterns using convolution. Positional encodings are exploited to provide the model with sequence order information. Finally, a linear classifier head analyzes the sequence representation to generate sign gloss predictions.*
+
 ## Update_MSLR-2025 (follow this folder for updated code)
 ---
 ---
