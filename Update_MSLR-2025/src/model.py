@@ -90,6 +90,10 @@ class JointAttention(nn.Module):
         return out + x  # Residual connection
 
 class AdvancedSignLanguageRecognizer(nn.Module):
+    '''
+    This is my Proprossed best model for US task
+        - paper model name: `Multi-Scale Fusion Transformer`
+    '''
     def __init__(self, vocab_size, cfg):
         super().__init__()
         self.input_size = 86 * 2  # 86 joints x 2 coordinates
