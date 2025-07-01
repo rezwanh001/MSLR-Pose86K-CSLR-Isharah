@@ -9,7 +9,7 @@ The tasks include:
 
 ## Propossed models Architecture:
 
-### Proposed Architecture: Signer-Invariant Conformer
+### Proposed Architecture: Signer-Invariant Conformer (for SI Task)
 
 <!-- [**View the Model Diagram (PDF)**](Assets/Challenge%2011.pdf) -->
 ![Diagram of the Signer-Invariant Conformer Architecture](Assets/signer_invariant_conformer.png)
@@ -18,7 +18,7 @@ The tasks include:
 
 ---
 
-### Proposed Architecture: Multi-Scale Fusion Transformer
+### Proposed Architecture: Multi-Scale Fusion Transformer (for US Task)
 
 ![Diagram of the Multi-Scale Fusion Transformer Architecture](Assets/Multi-Scale_Fusion_Transformer.png)
 
