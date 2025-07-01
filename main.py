@@ -18,20 +18,51 @@ from utils.metrics import wer_list
 from torchvision import transforms
 from utils.datasetv2 import PoseDatasetV2
 
-from models.transformer import SlowFastCSLR, PoseCSLRTransformer
-from models.llm_based_model import SlowFastLLMCSLR, LLMEnhancedPoseCSLR, AdvancedSlowFastLLMCSLR
-from models.stgcn_conformer import STGCNConformer, get_body_adjacency_matrix
-from models.spatio_temporal_transformer import SpatioTemporalTransformer, get_body_adjacency_matrix
+from models.transformer import CSLRTransformer, CSLRWithLLaMA, CSLRWithOPT, MixtureCSLRLLM, SlowFastCSLR
+from models.transformer import SlowFastCSLRWithLLM, CSLRDETR
+from models.llm_based_model import AdvancedSlowFastLLMCSLR, LLMEnhancedPoseCSLR
+from models.gcnn import GNNCSLRTransformer
+from models.pretrain_model import PretrainedSlowFastCSLR
+from models.new_model import SOTA_CSLR
 
 MODELS = {
-    "base": PoseCSLRTransformer,
+    "base": CSLRTransformer,
+    "llama": CSLRWithLLaMA, 
+    "opt": CSLRWithOPT,
+    "mixllama": MixtureCSLRLLM, ## LLaMA-Former
     "slowfast": SlowFastCSLR,
+    "slowfastllm": SlowFastCSLRWithLLM, ## LLaMA-SlowFast
+    "llm_advslowfast": AdvancedSlowFastLLMCSLR, ## LLM-SlowFast
     "llm_PoseCSLRT": LLMEnhancedPoseCSLR,
-    "llm_slowfast": SlowFastLLMCSLR,
-    "llm_advslowfast": AdvancedSlowFastLLMCSLR,
-    "stgcn_conformer": STGCNConformer,
-    "st_transformer": SpatioTemporalTransformer 
+    "gnncslr": GNNCSLRTransformer,
+    "pretrainedslowfast": PretrainedSlowFastCSLR,
+    "detr": CSLRDETR,
+    "SOTA_CSLR": SOTA_CSLR
 }
+
+
+# Add create_edge_index function at the top of main.py
+def create_edge_index():
+    # [Previous edge_index definition from above]
+    right_hand_edges = [[0, 1], [1, 2], [2, 3], [3, 4], [0, 5], [5, 6], [6, 7], [7, 8],
+                        [0, 9], [9, 10], [10, 11], [11, 12], [0, 13], [13, 14], [14, 15], [15, 16],
+                        [0, 17], [17, 18], [18, 19], [19, 20]]
+    right_hand_edges = torch.tensor(right_hand_edges, dtype=torch.long).t()
+
+    left_hand_edges = [[i + 21, j + 21] for i, j in right_hand_edges.t().tolist()]
+    left_hand_edges = torch.tensor(left_hand_edges, dtype=torch.long).t()
+
+    lip_edges = [[i, i + 1] for i in range(42, 60)]
+    lip_edges[-1][1] = 42  # Loop back
+    lip_edges = torch.tensor(lip_edges, dtype=torch.long).t()
+
+    body_edges = [[61, 62], [62, 63], [63, 64], [64, 65], [64, 66], [65, 67], [67, 68], [68, 69],
+                    [66, 70], [70, 71], [71, 72], [64, 73], [73, 74], [74, 75], [64, 76], [76, 77],
+                    [77, 78], [73, 79], [76, 80], [79, 81], [80, 82], [81, 83], [82, 84], [83, 85]]
+    body_edges = torch.tensor(body_edges, dtype=torch.long).t()
+
+    edge_index = torch.cat([right_hand_edges, left_hand_edges, lip_edges, body_edges], dim=1)
+    return edge_index
 
 def set_rng_state(seed):
     torch.backends.cudnn.benchmark = False
@@ -76,7 +107,7 @@ def train_epoch(model, dataloader, optimizer, loss_encoder, device):
 
         total_loss += loss.item()
 
-    return total_loss / len(dataloader), current_lr
+    return total_loss, current_lr
 
 
 def evaluate_model(model, dataloader, decoder_dec, device, inv_vocab_map, work_dir, epoch):
@@ -113,73 +144,135 @@ def evaluate_model(model, dataloader, decoder_dec, device, inv_vocab_map, work_d
 def main(args):
     set_rng_state(42)
     make_workdir(args.work_dir)
-    device = torch.device(f"cuda:{args.device}" if torch.cuda.is_available() else "cpu") 
+    device = torch.device(f"cuda:{args.device}" if torch.cuda.is_available() else "cpu")
         
     # train_csv = os.path.join(args.data_dir, f"isharah1000/annotations/{args.mode}/train.txt")
     # dev_csv = os.path.join(args.data_dir, f"isharah1000/annotations/{args.mode}/dev.txt")
+
+
+    if getattr(args, "train_on_all", False):
+        # Combine train and dev CSVs into one
+        print("[✔] Combine train and dev CSVs into one!")
+        train_csv = f"./annotations_v2/{args.mode}/train.txt"
+        dev_csv = f"./annotations_v2/{args.mode}/dev.txt"
+        combined_csv = f"./annotations_v2/{args.mode}/train_plus_dev.txt"
+
+        # Create combined CSV if it doesn't exist
+        if not os.path.exists(combined_csv):
+            with open(combined_csv, "w") as outfile:
+                for fname in [train_csv, dev_csv]:
+                    with open(fname) as infile:
+                        for line in infile:
+                            outfile.write(line)
+
+        # Use combined CSV for training, skip validation
+        train_processed, dev_processed, vocab_map, inv_vocab_map, vocab_list = convert_text_for_ctc("isharah", combined_csv, dev_csv)
+        dataset_train = PoseDatasetV2("isharah", combined_csv, "train", train_processed, augmentations=True, transform=transforms.Compose([GaussianNoise()]))
+        traindataloader = DataLoader(dataset_train, batch_size=1, shuffle=True, num_workers=10)
+
+        dataset_dev = PoseDatasetV2("isharah", dev_csv , "dev", dev_processed, augmentations=False)
+        devdataloader = DataLoader(dataset_dev, batch_size=1, shuffle=False, num_workers=10)
+    else:
+        train_csv = f"./annotations_v2/{args.mode}/train.txt"
+        dev_csv = f"./annotations_v2/{args.mode}/dev.txt"
+
+        train_processed, dev_processed, vocab_map, inv_vocab_map, vocab_list = convert_text_for_ctc("isharah", train_csv, dev_csv)
+
+        dataset_train = PoseDatasetV2("isharah", train_csv , "train", train_processed , augmentations=True , transform=transforms.Compose([GaussianNoise()]))
+        dataset_dev = PoseDatasetV2("isharah", dev_csv , "dev", dev_processed, augmentations=False)
+        traindataloader = DataLoader(dataset_train, batch_size=1, shuffle=True, num_workers=10)
+        devdataloader = DataLoader(dataset_dev, batch_size=1, shuffle=False, num_workers=10)
+
+    # Define edge_index
+    edge_index = create_edge_index()  # Use the function defined above
     
-    train_csv = f"./annotations_v2/{args.mode}/train.txt"
-    dev_csv = f"./annotations_v2/{args.mode}/dev.txt"
+    if args.model in ["slowfast", "slowfastllm", "llm_advslowfast", "llm_PoseCSLRT", "pretrainedslowfast"]:
+        # model = SlowFastCSLR(input_dim=172, ...)  # not 86!
+        model = MODELS[args.model](
+            input_dim=86*2, 
+            num_classes=len(vocab_map) 
+        ).to(device)
 
-    train_processed, dev_processed, vocab_map, inv_vocab_map, vocab_list = convert_text_for_ctc("isharah", train_csv, dev_csv)
+    elif args.model in ["SOTA_CSLR"]:
+        model = MODELS[args.model](
+            vocab_size=1000,
+            HIDDEN_SIZE=512
+        ).to(device)
 
-    # dataset_train = PoseDatasetV2("isharah", train_csv , "train", train_processed , augmentations=True , transform=transforms.Compose([GaussianNoise()]))
-    # dataset_dev = PoseDatasetV2("isharah", dev_csv , "dev", dev_processed, augmentations=False)
 
-    dataset_train = PoseDatasetV2("isharah", train_csv, "train", train_processed, augmentations=True, transform=transforms.Compose([GaussianNoise()]), max_frames=512, mode=args.mode)
-    dataset_dev = PoseDatasetV2("isharah", dev_csv, "dev", dev_processed, augmentations=False, max_frames=512, mode=args.mode)
+    elif args.model in ["gnncslr"]:
+        model = MODELS[args.model](
+            input_dim=86,
+            num_classes=len(vocab_map),
+            edge_index=edge_index
+        ).to(device)
+    else:
+        model = MODELS[args.model](
+            input_dim=86, 
+            num_classes=len(vocab_map)
+        ).to(device)
 
-    traindataloader = DataLoader(dataset_train, batch_size=1, shuffle=True, num_workers=10)
-    devdataloader = DataLoader(dataset_dev, batch_size=1, shuffle=False, num_workers=10)
-    
-    model = MODELS[args.model](input_dim=86*2, num_classes=len(vocab_map)).to(device)
+    decoder_dec = Decode(vocab_map, len(vocab_list), 'beam', inv_vocab_map=inv_vocab_map)
 
-    # adj_matrix = get_body_adjacency_matrix()
-    # model = MODELS[args.model](
-    #     input_dim=2,  # x,y coordinates
-    #     num_classes=len(vocab_map),
-    #     adj_matrix=adj_matrix,
-    #     embed_dim=256,
-    #     num_heads=4,
-    #     num_layers=6
-    # ).to(device)
-
-    # # ...
-    # adj_matrix = get_body_adjacency_matrix()
-    # model = MODELS[args.model](
-    #     input_dim=2,  # x,y coordinates
-    #     num_classes=len(vocab_map),
-    #     adj_matrix=adj_matrix,
-    #     spatial_channels=64,
-    #     embed_dim=256,
-    #     num_layers=4,
-    #     num_heads=8
-    # ).to(device)
-    # # ...
-
-    decoder_dec = Decode(vocab_map, len(vocab_list), 'beam')
     # optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3, verbose=True)
+    # optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4)
+    # optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=1e-4)
+
+    # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3, verbose=True)
+    # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=3)
+
+    optimizer = torch.optim.AdamW(
+        model.parameters(),
+        lr=0.001,
+        betas=(0.9, 0.98),
+        weight_decay=0.01
+    )
+    scheduler = torch.optim.lr_scheduler.OneCycleLR(
+        optimizer,
+        max_lr=0.001,
+        steps_per_epoch=len(traindataloader),
+        epochs=args.num_epochs,
+        anneal_strategy='cos'
+    )
+
     loss_encoder = nn.CTCLoss(blank=0, zero_infinity=True, reduction='none')
 
-    # model = MODELS[args.model](input_dim=84, num_classes=len(vocab_map)).to(device)
-    # decoder_dec = Decode(vocab_map, len(vocab_list), 'beam')
-    # optimizer = optim.Adam(model.parameters(), lr=args.lr)
-    # scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5, verbose=True)
-    # loss_encoder = nn.CTCLoss(blank=0, zero_infinity=True, reduction='mean')
-
     log_file = f"{args.work_dir}/training_log.txt"
-    if os.path.exists(log_file):
-        os.remove(log_file)
+    # if os.path.exists(log_file):
+    #     os.remove(log_file)
 
+    start_epoch = 0
     best_wer = float("inf") 
     best_epoch = 0
-    patience = 10
+    patience = 100
     patience_counter = 0
 
-    for epoch in range(args.num_epochs):
-        print(f"\n\nEpoch [{epoch+1}/{args.num_epochs}]")
+    checkpoint_path = f"{args.work_dir}/best_model.pt"
+
+    # if getattr(args, "resume", False) and os.path.exists(checkpoint_path):
+    #     print(f"Resuming from checkpoint: {checkpoint_path}")
+    #     model.load_state_dict(torch.load(checkpoint_path, map_location=device))
+    #     # Optionally, load optimizer state if you saved it
+    #     # optimizer.load_state_dict(torch.load(f"{args.work_dir}/best_optimizer.pt", map_location=device))
+    #     # Optionally, load other states (best_wer, best_epoch, patience_counter) from a file
+    #     # If you saved them, load here and set start_epoch = best_epoch + 1
+
+    if getattr(args, "resume", False) and os.path.exists(checkpoint_path):
+        print(f"Resuming from checkpoint: {checkpoint_path}")
+        checkpoint = torch.load(checkpoint_path, map_location=device)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        # optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        best_wer = checkpoint.get('best_wer', float("inf"))
+        best_epoch = checkpoint.get('best_epoch', 0)
+        patience_counter = checkpoint.get('patience_counter', 0)
+        start_epoch = best_epoch + 1  # Optionally resume from next epoch
+
+    print("CUDA available:", torch.cuda.is_available())
+    print("Device:", device)
+    print("Model device:", next(model.parameters()).device)
+
+    for epoch in range(start_epoch, start_epoch+args.num_epochs):
+        print(f"\n\nEpoch [{epoch+1}/{start_epoch+args.num_epochs}]")
         train_loss, current_lr = train_epoch(model, traindataloader, optimizer, loss_encoder, device)
         dev_wer_results = evaluate_model(model, devdataloader, decoder_dec, device, inv_vocab_map, args.work_dir, epoch)
         scheduler.step(dev_wer_results['wer'])
@@ -188,7 +281,15 @@ def main(args):
             best_wer = dev_wer_results['wer']
             best_epoch = epoch
             patience_counter = 0
-            torch.save(model.state_dict(), f"{args.work_dir}/best_model.pt")
+            # torch.save(model.state_dict(), f"{args.work_dir}/best_model.pt")
+            torch.save({
+                'model_state_dict': model.state_dict(),
+                'optimizer_state_dict': optimizer.state_dict(),
+                'best_wer': best_wer,
+                'best_epoch': best_epoch,
+                'patience_counter': patience_counter,
+                # ... add more if needed
+            }, f"{args.work_dir}/best_model.pt")
         else:
             patience_counter += 1
         
@@ -218,6 +319,8 @@ if __name__ == '__main__':
     parser.add_argument('--device', dest='device', default="0")
     parser.add_argument('--lr', dest='lr', default="0.00001")
     parser.add_argument('--num_epochs', dest='num_epochs', default="300")
+    parser.add_argument('--resume', dest='resume', action='store_true', help='Resume training from best_model.pt')
+    parser.add_argument('--train_on_all', action='store_true', help='Train on train+dev for final model')
 
     args=parser.parse_args()
     args.lr = float(args.lr)
@@ -226,24 +329,83 @@ if __name__ == '__main__':
     main(args)
 
 '''
-
-SI : Task-1 : python main.py --work_dir ./work_dir/base_SI --model base --mode SI --num_epochs 5
-
-                python main.py --work_dir ./work_dir/llm_SI --model llm --mode SI --num_epochs 150 --device 0
-
-                python main.py --work_dir ./work_dir/slowfast_SI --model slowfast --mode SI --num_epochs 100 --device 0
-
-                python main.py --work_dir ./work_dir/llm_advslowfast_SI --model llm_advslowfast --mode SI --num_epochs 100 --device 0
+python main.py --work_dir ./work_dir/base_SI --data_dir ./data --mode SI --model base --device 0 --lr 0.0001 --num_epochs 200
 
 
 
-US : Task-2 : python main.py --work_dir ./work_dir/base_US --model base --mode US --num_epochs 5
-
-                python main.py --work_dir ./work_dir/llm_US --model llm --mode US --num_epochs 150 --device 1
-
-                python main.py --work_dir ./work_dir/slowfast_US --model slowfast --mode US --num_epochs 100 --device 1
-
-                python main.py --work_dir ./work_dir/llm_advslowfast_US --model llm_advslowfast --mode US --num_epochs 100 --device 1
+python main.py --work_dir ./work_dir/base_SI --data_dir ./data --mode SI --model base --device 0 --lr 0.0001 --num_epochs 200
 
 
-''' 
+python main.py --work_dir ./work_dir/llama_SI --data_dir ./data --mode SI --model llama --device 0 --lr 0.00001 --num_epochs 250
+
+
+python main.py --work_dir ./work_dir/opt_SI --data_dir ./data --mode SI --model opt --device 0 --lr 0.00001 --num_epochs 150
+
+
+python main.py --work_dir ./work_dir/mixllama_SI --data_dir ./data --mode SI --model mixllama --device 0 --lr 0.00001 --num_epochs 200 --resume
+
+
+python main.py --work_dir ./work_dir/pretrainedslowfast_SI --data_dir ./data --mode SI --model pretrainedslowfast --device 0 --lr 0.00001 --num_epochs 150
+
+
+================================
+python main.py --work_dir ./work_dir/detr_SI --data_dir ./data --mode SI --model detr --device 0 --lr 0.00001 --num_epochs 25
+
+ps -p 3313654 -o cmd
+
+python main.py --work_dir ./work_dir/detr_US --data_dir ./data --mode US --model detr --device 1 --lr 0.00001 --num_epochs 25
+
+================================
+
+
+python main.py --work_dir ./work_dir/slowfastllm_SI --data_dir ./data --mode SI --model slowfastllm --device 0 --lr 0.00001 --num_epochs 100
+
+
+python main.py --work_dir ./work_dir/llm_PoseCSLRT_SI --data_dir ./data --mode SI --model llm_PoseCSLRT --device 0 --lr 0.000003 --num_epochs 100
+
+
+####
+
+gnncslr
+
+python main.py --work_dir ./work_dir/gnncslr_SI --data_dir ./data --mode SI --model gnncslr --device 0 --lr 0.000003 --num_epochs 100
+
+------------------------------------
+
+python main.py --work_dir ./work_dir/base_US --data_dir ./data --mode US --model base --device 1 --lr 0.0001 --num_epochs 200
+
+python main.py --work_dir ./work_dir/llama_US --data_dir ./data --mode US --model llama --device 1 --lr 0.00001 --num_epochs 250
+
+python main.py --work_dir ./work_dir/opt_US --data_dir ./data --mode US --model opt --device 1 --lr 0.00001 --num_epochs 150
+
+
+python main.py --work_dir ./work_dir/mixllama_US --data_dir ./data --mode US --model mixllama --device 1 --lr 0.00001 --num_epochs 300
+
+
+python main.py --work_dir ./work_dir/mixllama_US --data_dir ./data --mode US --model mixllama --device 1 --lr 0.000003 --num_epochs 100 --resume
+
+
+python main.py --work_dir ./work_dir/slowfastllm_US --data_dir ./data --mode US --model slowfastllm --device 1 --lr 0.00001 --num_epochs 100
+
+------------------------------------------------------------------------------------------------------
+
+python main.py --work_dir ./work_dir/slowfast_US --data_dir ./data --mode US --model slowfast --device 1 --lr 0.000003 --num_epochs 150 --resume
+
+
+#########====== llm_advslowfast
+
+python main.py --work_dir ./work_dir/llm_advslowfast_SI --data_dir ./data --mode SI --model llm_advslowfast --device 0 --lr 0.000003 --num_epochs 100 --resume
+
+
+python main.py --work_dir ./work_dir/llm_advslowfast_US --data_dir ./data --mode US --model llm_advslowfast --device 1 --lr 0.000003 --num_epochs 100 --resume
+
+
+===============================================================================================================================
+SOTA_CSLR
+
+
+python main.py --work_dir ./work_dir/SOTA_CSLR_SI --data_dir ./data --mode SI --model SOTA_CSLR --device 0 --num_epochs 120
+
+
+
+'''
