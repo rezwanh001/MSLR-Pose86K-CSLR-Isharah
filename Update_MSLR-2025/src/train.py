@@ -92,21 +92,27 @@ def train(mode='SI', model_type='SignLanguageRecognizer'):
         'bidirectional': True
     }
     # Initialize model based on type
-    if model_type == 'SignLanguageRecognizer':
+    if model_type == 'SignLanguageRecognizer': ## CNN-BiLSTM
         model = SignLanguageRecognizer(cfg.VOCAB_SIZE, cfg)
     elif model_type == 'ArabicMamba':
         model = ArabicMamba(cfg.VOCAB_SIZE, cfg, mamba_config)
-    elif model_type == 'SignLanguageConformer':
+    elif model_type == 'SignLanguageConformer': ## Sign-Conformer
         model = SignLanguageConformer(cfg.VOCAB_SIZE, cfg)
 
     elif model_type == 'AdvancedSignLanguageRecognizer': ### For Mode = US (where we got high performance) # (WER) val = 55.0847  & test = 47.7756 (Winner: 2nd)
         model = AdvancedSignLanguageRecognizer(cfg.VOCAB_SIZE, cfg)
+        '''
+        paper model name: ``Multi-Scale Fusion Transformer``
+        '''
 
-    elif model_type == 'MambaSignLanguageRecognizer': 
+    elif model_type == 'MambaSignLanguageRecognizer':  ## Mamba-Sign
         model = MambaSignLanguageRecognizer(cfg.VOCAB_SIZE, cfg)
 
     elif model_type == 'SOTA_CSLR':  ### For Mode = SI (where we got high performance) # (WER) val = 7.3123  & test = 13.0652 (Winner: 4th)
         model = SOTA_CSLR(cfg.VOCAB_SIZE, cfg)
+        '''
+        paper model name: ``Signer-Invariant Conformer``
+        '''
         
     else:
         raise ValueError(f"Unknown model type: {model_type}")
