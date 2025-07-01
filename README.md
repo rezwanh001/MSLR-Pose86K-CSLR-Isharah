@@ -16,6 +16,15 @@ The tasks include:
 
 *__Figure 1: Signer-Invariant Conformer.__ Our proposed architecture for signer-independent CSLR begins by extracting pose keypoints from video frames. An initial temporal encoder, composed of convolutional layers, learns local features from this pose sequence. The core of the model consists of conformer blocks that capture global context with multi-head self-attention and extract local patterns using convolution. Positional encodings are exploited to provide the model with sequence order information. Finally, a linear classifier head analyzes the sequence representation to generate sign gloss predictions.*
 
+---
+
+### Proposed Architecture: Multi-Scale Fusion Transformer
+
+![Diagram of the Multi-Scale Fusion Transformer Architecture](Assets/Multi-Scale_Fusion_Transformer.png)
+
+*__Figure 1: Multi-Scale Fusion Transformer.__ Multi-Scale Fusion Transformer: An overview of the proposed architecture for the unseen sentences CSLR task. The network first uses a pose estimator to retrieve keypoint data. The features are then processed by a temporal encoder with a dual-path design: a main block records fine-grained temporal dynamics, and an auxiliary block uses max-pooling to learn downsampled representations.  The outputs of both blocks are combined to provide a comprehensive feature set. This is subsequently analyzed by a transformer encoder, which models the sequence's long-range relationships. A joint attention mechanism reweights feature values before they are passed to the classification phase. The output sequence is fed into a classifier head, which generates the US gloss predictions.*
+---
+
 ## Update_MSLR-2025 (follow this folder for updated code)
 ---
 ---
