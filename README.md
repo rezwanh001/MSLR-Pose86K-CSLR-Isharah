@@ -23,6 +23,7 @@ The tasks include:
 ![Diagram of the Multi-Scale Fusion Transformer Architecture](Assets/Multi-Scale_Fusion_Transformer.png)
 
 *__Figure 1: Multi-Scale Fusion Transformer.__ Multi-Scale Fusion Transformer: An overview of the proposed architecture for the unseen sentences CSLR task. The network first uses a pose estimator to retrieve keypoint data. The features are then processed by a temporal encoder with a dual-path design: a main block records fine-grained temporal dynamics, and an auxiliary block uses max-pooling to learn downsampled representations.  The outputs of both blocks are combined to provide a comprehensive feature set. This is subsequently analyzed by a transformer encoder, which models the sequence's long-range relationships. A joint attention mechanism reweights feature values before they are passed to the classification phase. The output sequence is fed into a classifier head, which generates the US gloss predictions.*
+
 ---
 
 ## Update_MSLR-2025 (follow this folder for updated code)
