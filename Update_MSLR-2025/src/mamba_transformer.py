@@ -301,6 +301,10 @@ class ConformerBlock(nn.Module):
 
 # Full SOTA CSLR model
 class SOTA_CSLR(nn.Module):
+    '''
+    This is my Proprossed best model for SI task
+        - paper model name: `Signer-Invariant Conformer`
+    '''
     def __init__(self, vocab_size, cfg):
         super().__init__()
         self.input_size = 86 * 2
