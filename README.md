@@ -2,7 +2,7 @@
 # Pose Estimation for MSLR CSLR Track
 ---
 - ***Team Name:*** **CPAMI (UW)**
-- **Final Standing:**
+- **Final Standing: 4th in Task-1 (SI) & 2nd in Task-2 (US)**
 ---
 
 ## Update_MSLR-2025 (follow this folder for updated code)
@@ -35,8 +35,6 @@ python run.py --infer --mode US --model AdvancedSignLanguageRecognizer
 ```
 
 ---
----
-
 
 ---
 
