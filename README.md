@@ -1,5 +1,11 @@
 
 # Pose Estimation for MSLR CSLR Track
+---
+- ***Team Name:*** **CPAMI (UW)**
+- **Final Standing:**
+![Diagram of the Signer-Invariant Conformer Architecture](Assets/MSLR_Final_Standing.png)
+---
+
 
 Welcome to the Pose Estimation repository! This repository contains the starter kit for the **MSLR CSLR Track** and provides a simple baseline for two important tasks in Continuous Sign Language Recognition (CSLR).
 
