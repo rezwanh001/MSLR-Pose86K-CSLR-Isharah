@@ -3,34 +3,6 @@
 ---
 - ***Team Name:*** **CPAMI (UW)**
 - **Final Standing:**
-
-![Diagram of the Signer-Invariant Conformer Architecture](Assets/MSLR_Final_Standing.png)
----
-
-
-Welcome to the Pose Estimation repository! This repository contains the starter kit for the **MSLR CSLR Track** and provides a simple baseline for two important tasks in Continuous Sign Language Recognition (CSLR).
-
-The tasks include:
-1. **Signer Independent** [View Competition](https://www.kaggle.com/competitions/continuous-sign-language-recognition-iccv-2025)
-2. **Unseen Sentences** [View Competition](https://www.kaggle.com/competitions/continuous-slr-task-2-iccv-2025)
-
-## Propossed models Architecture:
-
-### Proposed Architecture: Signer-Invariant Conformer (for SI Task)
-
-<!-- [**View the Model Diagram (PDF)**](Assets/Challenge%2011.pdf) -->
-![Diagram of the Signer-Invariant Conformer Architecture](Assets/signer_invariant_conformer.png)
-
-*__Figure 1: Signer-Invariant Conformer.__ Our proposed architecture for signer-independent CSLR begins by extracting pose keypoints from video frames. An initial temporal encoder, composed of convolutional layers, learns local features from this pose sequence. The core of the model consists of conformer blocks that capture global context with multi-head self-attention and extract local patterns using convolution. Positional encodings are exploited to provide the model with sequence order information. Finally, a linear classifier head analyzes the sequence representation to generate sign gloss predictions.*
-
----
-
-### Proposed Architecture: Multi-Scale Fusion Transformer (for US Task)
-
-![Diagram of the Multi-Scale Fusion Transformer Architecture](Assets/Multi-Scale_Fusion_Transformer.png)
-
-*__Figure 1: Multi-Scale Fusion Transformer.__ Multi-Scale Fusion Transformer: An overview of the proposed architecture for the unseen sentences CSLR task. The network first uses a pose estimator to retrieve keypoint data. The features are then processed by a temporal encoder with a dual-path design: a main block records fine-grained temporal dynamics, and an auxiliary block uses max-pooling to learn downsampled representations.  The outputs of both blocks are combined to provide a comprehensive feature set. This is subsequently analyzed by a transformer encoder, which models the sequence's long-range relationships. A joint attention mechanism reweights feature values before they are passed to the classification phase. The output sequence is fed into a classifier head, which generates the US gloss predictions.*
-
 ---
 
 ## Update_MSLR-2025 (follow this folder for updated code)
@@ -103,45 +75,6 @@ python run.py --infer --mode US --model AdvancedSignLanguageRecognizer
 
 ---
 
-## Baseline Overview
-
-### 4.3 Baselines
-
-To evaluate the performance of our proposed models, we compare them against a suite of baseline architectures implemented for this study. These baselines span a range of established and recent approaches in sequence modeling, from classic recurrent networks to modern hybrid architectures incorporating Large Language Models (LLMs). The performance of each baseline on the Isharah-1000 Signer-Independent (SI) and Unseen-Sentences (US) tasks is reported.
-
--   **LLM-SlowFast (`llm_advslowfast`):** This model adapts the SlowFast concept to pose data, with parallel Transformer pathways processing the sequence at different temporal resolutions. It further attempts to inject linguistic knowledge by concatenating features from a pretrained XLM-RoBERTa model before the final classifier. This complex architecture performed poorly, achieving a high test WER of 72.24% for the SI task and a development set WER of 93.07% for the US task.
-
--   **LLaMA-Former (`mixllama`):** This baseline uses a standard Transformer encoder to process pose features, which are then fed into a frozen LLaMA-2 model to act as a powerful sequential processor. This approach explores leveraging the advanced sequence modeling capabilities of a large generative LLM. It achieved a test WER of 51.21% in the SI task and an 86.90% development set WER for the US task.
-
--   **LLaMA-SlowFast (`mixllama + slowfastllm`):** A hybrid of the previous two, this model uses LLaMA-2 and a SlowFast architecture to extract multi-rate temporal features from pose data. The fused visual features are then processed by an AraBERT model [1]. This intricate fusion of visual and linguistic models yielded a test WER of 46.98% for the SI task.
-
--   **ST-GCN-Conformer (`gcn_transformer`):** This model first employs a Spatial-Temporal Graph Convolutional Network (ST-GCN) to learn features directly on the skeletal graph [2]. This front-end explicitly models the physical connections between body joints over time. The output of the ST-GCN is then processed by a Conformer encoder to capture the long-range sequential relationships between these learned spatio-temporal features. Despite its sophisticated design for modeling skeletal structure, this model struggled significantly with the linguistic generalization required for the US task, achieving a high development set WER of 91.80%.
-
--   **DistilBERT-Former (`LLM Backbone (DistilBERT)`):** This model first processes the pose sequence using a standard Transformer encoder to capture visual-temporal dependencies. The resulting feature embeddings are then fed into a pretrained DistilBERT model [3], using it as a powerful, general-purpose sequence processor instead of a simple classifier. This approach aims to leverage the linguistic and contextual knowledge inherent in the LLM backbone. However, the model struggled with the task, achieving a high development set WER of 81.70% in the US task.
-
--   **Mamba-Sign (`MambaSignLanguageRecognizer`):** This model utilizes a hybrid Mamba-Transformer block, leveraging the linear-time sequence modeling strengths of Mamba alongside the global context capabilities of attention. It replaces standard recurrent or purely attention-based backbones with this recent state-space model architecture [4]. On the SI task, Mamba-Sign achieved a test WER of 37.28%. On the US task, this model gained a development set WER of 59.51%.
-
--   **BiLSTM (`LSTM`):** This is a classic CSLR baseline consisting of a simple Bidirectional Long Short-Term Memory (BiLSTM) network [5]. It processes the pose features directly to capture temporal dependencies. This foundational model serves as a strong reference point, achieving a competitive test WER of 26.08% in the SI task and a 79.93% development set WER for the US task.
-
--   **Sign-Conformer (`SignLanguageConformer`):** This baseline adapts the Conformer architecture, which has shown great success in speech recognition, to the sign language domain. It combines convolutions and self-attention to capture both local and global dependencies in the pose sequence [6]. It performed comparably to the BiLSTM, with a test WER of 26.63% in the SI task and a very high development set WER of 77.50% for the US task.
-
--   **CNN-BiLSTM (`SignLanguageRecognizer`):** Our strongest baseline combines a TCN front-end with a BiLSTM backbone. The convolutional layers first extract and downsample local spatio-temporal features, which are then modeled by the BiLSTM to capture long-range dependencies. This simple yet effective hybrid architecture achieved the best performance among all baselines, with a test WER of 22.62% in the SI task. Alternatively, in the US task with this same model, we got a comparatively high WER of 74.96%.
-
----
-**References**
-
-[1] Antoun, W., Baly, F., & Hajj, H. (2020). AraBERT: Transformer-based Model for Arabic Language Understanding. *arXiv preprint arXiv:2003.00104*.
-
-[2] Yan, S., Xiong, Y., & Lin, D. (2018). Spatial temporal graph convolutional networks for skeleton-based action recognition. *AAAI*.
-
-[3] Sanh, V., Debut, L., Chaumond, J., & Wolf, T. (2019). DistilBERT, a distilled version of BERT: smaller, faster, cheaper and lighter. *arXiv preprint arXiv:1910.01108*.
-
-[4] Gu, A., & Dao, T. (2023). Mamba: Linear-Time Sequence Modeling with Selective State Spaces. *arXiv preprint arXiv:2312.00752*.
-
-[5] Hochreiter, S., & Schmidhuber, J. (1997). Long short-term memory. *Neural computation*, 9(8), 1735-1780.
-
-[6] Gulati, A., et al. (2020). Conformer: Convolution-augmented transformer for speech recognition. *Interspeech*.
----
 
 ## Setup Instructions
 
@@ -164,7 +97,7 @@ Follow these steps to set up the environment and get started:
    - Create a virtual environment and activate it:
      ```bash
      python<version> -m venv pose
-     source pose/bin/activate  # On Windows: pose\Scriptsctivate
+     source pose/bin/activate  # On Windows: pose\Scripts activate
      ```
 
    - Install the required dependencies:
