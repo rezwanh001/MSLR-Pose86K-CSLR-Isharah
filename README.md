@@ -3,6 +3,7 @@
 ---
 - ***Team Name:*** **CPAMI (UW)**
 - **Final Standing:**
+
 ![Diagram of the Signer-Invariant Conformer Architecture](Assets/MSLR_Final_Standing.png)
 ---
 
