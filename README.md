@@ -1,9 +1,6 @@
 
 # Pose Estimation for MSLR CSLR Track
 ---
-- ***Team Name:*** **CPAMI (UW)**
-
-- **Final Standing: `4th` in Task-1 (SI) & `2nd` in Task-2 (US)**
 
 ---
 
