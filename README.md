@@ -1,7 +1,14 @@
 
 # Pose Estimation for MSLR CSLR Track
----
 
+Paper Title: **A Signer-Invariant Conformer and Multi-Scale Fusion Transformer for Continuous Sign Language Recognition**
+
+#### ***Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV), Honolulu, Hawaii, USA. 1st MSLR Workshop 2025. Copyright 2025 by the author(s).***
+
+---
+- ***Team Name:*** **CPAMI (UW)**
+
+- **Final Standing: `4th` in Task-1 (SI) & `2nd` in Task-2 (US)**
 ---
 
 Welcome to the Pose Estimation repository! This repository contains the starter kit for the **MSLR CSLR Track** and provides a simple baseline for two important tasks in Continuous Sign Language Recognition (CSLR).
@@ -291,4 +298,6 @@ MSLR-Pose86K-CSLR-Isharah/
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [MIT License](LICENSE).
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
