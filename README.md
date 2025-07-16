@@ -11,6 +11,19 @@ Paper Title: **A Signer-Invariant Conformer and Multi-Scale Fusion Transformer f
 - **Final Standing: `4th` in Task-1 (SI) & `2nd` in Task-2 (US)**
 ---
 
+### 📖 Citation:
+- If you find this project useful for your research, please cite [this paper](https://arxiv.org/abs/****.*****)
+
+```bibtex
+@inproceedings{haque2025signer,
+    title={A Signer-Invariant Conformer and Multi-Scale Fusion Transformer for Continuous Sign Language Recognition},
+    author={Haque, Md Rezwanul and Islam, Md. Milon and Raju, S M Taslim Uddin and Karray, Fakhri},
+    journal = {arXiv preprint arXiv:****.*****},
+    year = {2025}
+}
+```
+---
+
 Welcome to the Pose Estimation repository! This repository contains the starter kit for the **MSLR CSLR Track** and provides a simple baseline for two important tasks in Continuous Sign Language Recognition (CSLR).
 
 The tasks include:
