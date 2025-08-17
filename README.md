@@ -1,9 +1,18 @@
-
 # Pose Estimation for MSLR CSLR Track
 
-Paper Title: **A Signer-Invariant Conformer and Multi-Scale Fusion Transformer for Continuous Sign Language Recognition**
+This repository is the official implementation of the following paper.
+
+Paper Title: **[A Signer-Invariant Conformer and Multi-Scale Fusion Transformer for Continuous Sign Language Recognition](https://arxiv.org/abs/2508.09372)**
+<br/>
+[Md Rezwanul Haque](https://scholar.google.com/citations?user=HaI-oFUAAAAJ&hl=en), [Md. Milon Islam](https://scholar.google.com/citations?user=ABC_LOAAAAAJ&hl=en), [S M Taslim Uddin Raju](https://scholar.google.com/citations?user=ToadRS8AAAAJ&hl=en), [Fakhri Karray](https://uwaterloo.ca/scholar/karray)
+<br/>
 
 #### ***Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV), Honolulu, Hawaii, USA. 1st MSLR Workshop 2025. Copyright 2025 by the author(s).***
+
+[![arXiv](https://img.shields.io/badge/arXiv-2508.09372-b31b1b)](https://arxiv.org/abs/2508.09372)
+
+## Abstract
+> Continuous Sign Language Recognition (CSLR) faces multiple challenges, including significant inter-signer variability and poor generalization to novel sentence structures. Traditional solutions frequently fail to handle these issues efficiently. For overcoming these constraints, we propose a dual-architecture framework. For the Signer-Independent (SI) challenge, we propose a Signer-Invariant Conformer that combines convolutions with multi-head self-attention to learn robust, signer-agnostic representations from pose-based skeletal keypoints. For the Unseen-Sentences (US) task, we designed a Multi-Scale Fusion Transformer with a novel dual-path temporal encoder that captures both fine-grained posture dynamics, enabling the model’s ability to comprehend novel grammatical compositions. Experiments on the challenging Isharah-1000 dataset establish a new standard for both CSLR benchmarks. The proposed conformer architecture achieves a Word Error Rate (WER) of 13.07% on the SI challenge, a reduction of 13.53% from the state-of-the-art. On the US task, the transformer model scores a WER of 47.78%, surpassing previous work. In the SignEval 2025 CSLR challenge, our team placed 2nd in the US task and 4th in the SI task, demonstrating the performance of these models. The findings validate our key hypothesis: that developing task-specific networks designed for the particular challenges of CSLR leads to considerable performance improvements and establishes a new baseline for further research. The source code is available at: https://github.com/rezwanh001/MSLR-Pose86K-CSLR-Isharah.
 
 ---
 - ***Team Name:*** **CPAMI (UW)**
@@ -12,14 +21,14 @@ Paper Title: **A Signer-Invariant Conformer and Multi-Scale Fusion Transformer f
 ---
 
 ### 📖 Citation:
-- If you find this project useful for your research, please cite [this paper](https://arxiv.org/abs/****.*****)
+- If you find this project useful for your research, please cite [this paper](https://arxiv.org/abs/2508.09372)
 
 ```bibtex
-@inproceedings{haque2025signer,
-    title={A Signer-Invariant Conformer and Multi-Scale Fusion Transformer for Continuous Sign Language Recognition},
-    author={Haque, Md Rezwanul and Islam, Md. Milon and Raju, S M Taslim Uddin and Karray, Fakhri},
-    journal = {arXiv preprint arXiv:****.*****},
-    year = {2025}
+@article{haque2025signer,
+  title={A Signer-Invariant Conformer and Multi-Scale Fusion Transformer for Continuous Sign Language Recognition},
+  author={Haque, Md Rezwanul and Islam, Md Milon and Raju, SM and Karray, Fakhri},
+  journal={arXiv preprint arXiv:2508.09372},
+  year={2025}
 }
 ```
 ---
